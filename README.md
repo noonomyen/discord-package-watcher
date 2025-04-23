@@ -44,6 +44,22 @@ Make sure these are installed on your system before running the watcher.
    loginctl enable-linger $USER
    ```
 
+## How it works
+
+The systemd user service runs a background Rust program that watches a specified directory (by default, ~/Downloads/discord) for new discord*.deb files.
+
+1. File Detection
+    Watches for Access(Close(Write)) events on .deb files matching discord*.deb.
+
+2. User Prompt
+    When detected, prompts the user via zenity for installation confirmation.
+
+3. Privilege Elevation
+    If the user agrees, invokes pkexec dpkg --install <path-to-deb> to install the package with elevated privileges.
+
+4. Launch Discord
+    After installation, runs setsid gtk-launch discord to start Discord.
+
 ## Configuration
 
 The default watched directory is:
