@@ -1,0 +1,10 @@
+[Unit]
+Description=Discord Package Watcher
+
+[Service]
+ExecStart=%h/.cargo/bin/discord-package-watcher %h/Downloads/discord
+Restart=on-failure
+WorkingDirectory=%h
+
+[Install]
+WantedBy=default.target

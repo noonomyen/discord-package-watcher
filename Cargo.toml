@@ -1,0 +1,12 @@
+[package]
+name = "discord-package-watcher"
+description = "Watch the directory for Discord package downloads to prompt the user for immediate installation"
+version = "0.1.0"
+edition = "2024"
+authors = ["noonomyen"]
+repository = "https://github.com/noonomyen/discord-package-watcher"
+license = "MIT"
+
+[dependencies]
+notify = "8.0.0"
+ctrlc = "3.4.6"
