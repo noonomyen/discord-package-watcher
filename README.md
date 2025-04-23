@@ -35,7 +35,7 @@ Make sure these are installed on your system before running the watcher.
    systemctl --user enable --now discord-package-watcher.service
    ```
 
-   This will watch your `~/Downloads` folder for new `.deb` files and automatically prompt you to install them.
+   This will watch your `~/Downloads/discord` folder for new `.deb` files and automatically prompt you to install them.
 
 3. **Make sure your user environment supports systemd user services**
    If your system does not enable user services by default, you may need to run:
