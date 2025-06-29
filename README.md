@@ -11,54 +11,64 @@ This tool requires the following system dependencies to function:
 - `zenity` - to display GUI prompts
 - `polkit` (for `pkexec`) to request privilege elevation for installation
 - `dpkg` - for installing `.deb` packages
-- `gtk-launch` - to launch the installed Discord application (relies on `.desktop` file integration)
+- `systemd-run` - to launch Discord
 
 Make sure these are installed on your system before running the watcher.
 
 ## Installation
 
-1. **Install the binary using Cargo**:
+### Build and install with Makefile
 
-   ```sh
-   cargo install --path .
-   ```
+Use the provided Makefile to install and manage the watcher and its systemd user service:
 
-   > The binary will be available at `~/.cargo/bin/discord-package-watcher`.
+```sh
+make install
+```
 
-2. **Set up the systemd user service (Linux)**:
+This will:
 
-   ```sh
-   mkdir -p ~/.config/systemd/user
-   mkdir -p ~/Downloads/discord
-   cp systemd/discord-package-watcher.service ~/.config/systemd/user/
-   systemctl --user daemon-reload
-   systemctl --user enable --now discord-package-watcher.service
-   ```
+- Build the Rust binary (`cargo install --path .`)
+- Create necessary directories (`~/.config/systemd/user` and `~/Downloads/discord`)
+- Copy the systemd service file to the user systemd directory
+- Reload and enable the service, starting it immediately
 
-   This will watch your `~/Downloads/discord` folder for new `.deb` files and automatically prompt you to install them.
+### Remove/uninstall
 
-3. **Make sure your user environment supports systemd user services**
-   If your system does not enable user services by default, you may need to run:
+To disable and remove the service, run:
 
-   ```sh
-   loginctl enable-linger $USER
-   ```
+```sh
+make remove
+```
+
+This will:
+
+- Disable and stop the systemd service
+- Remove the service file from your user systemd directory
+- Reload the daemon
+
+#### Note
+
+Make sure your user environment supports systemd user services. If user lingering is disabled, enable it by running:
+
+```sh
+loginctl enable-linger $USER
+```
 
 ## How it works
 
 The systemd user service runs a background Rust program that watches a specified directory (by default, ~/Downloads/discord) for new discord*.deb files.
 
 1. File Detection
-    Watches for Access(Close(Write)) events on .deb files matching discord*.deb.
+    Watches for new `.deb` files matching `discord*.deb`.
 
 2. User Prompt
-    When detected, prompts the user via zenity for installation confirmation.
+    When detected, prompts the user via `zenity` for installation confirmation.
 
 3. Privilege Elevation
-    If the user agrees, invokes pkexec dpkg --install <path-to-deb> to install the package with elevated privileges.
+    If the user agrees, invokes `pkexec dpkg --install <path-to-deb>` to install the package with elevated privileges.
 
 4. Launch Discord
-    After installation, runs setsid gtk-launch discord to start Discord.
+    After installation, runs `systemd-run --user --scope /usr/bin/discord` to start Discord outside the service cgroup.
 
 ## Configuration
 
