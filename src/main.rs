@@ -1,6 +1,6 @@
 use std::env;
 use std::path::Path;
-use std::process::{Command, Stdio, exit};
+use std::process::{Command, exit};
 use std::sync::mpsc;
 
 use notify::{Event, EventKind, RecursiveMode, Result, Watcher, event, recommended_watcher};
@@ -69,11 +69,12 @@ fn deb_install(path: &str) -> bool {
 }
 
 fn start_discord() -> std::io::Result<()> {
-    Command::new("setsid")
-        .args(&["gtk-launch", "discord"])
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
+    Command::new("systemd-run")
+        .args(&[
+            "--user",
+            "--scope",
+            "/usr/bin/discord"
+        ])
         .spawn()?;
 
     Ok(())
